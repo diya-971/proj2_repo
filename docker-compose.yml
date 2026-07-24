@@ -4,7 +4,7 @@ services:
 
   website:
 
-    image: diya971/ipstpro-website:latest
+    image: diyapaul/ipstpro-website:latest
 
     container_name: ipstpro
 
