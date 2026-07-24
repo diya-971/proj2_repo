@@ -14,7 +14,7 @@ pipeline {
 
             steps {
 
-                git 'https://github.com/diya-971/proj_repo.git'
+                git 'https://github.com/diya-971/proj2_repo.git'
 
             }
 
