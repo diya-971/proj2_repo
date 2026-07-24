@@ -10,16 +10,6 @@ pipeline {
 
     stages {
 
-        stage('Clone') {
-
-            steps {
-
-                git 'https://github.com/diya-971/proj2_repo.git'
-
-            }
-
-        }
-
         stage('Build Image') {
 
             steps {
