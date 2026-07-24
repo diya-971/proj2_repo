@@ -4,7 +4,7 @@ pipeline {
 
     environment {
 
-        IMAGE_NAME = "diya971/ipstpro-website"
+        IMAGE_NAME = "diyapaul/ipstpro-website"
 
     }
 
