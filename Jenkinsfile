@@ -1,5 +1,4 @@
 pipeline {
-
     agent any
 
     environment {
@@ -8,9 +7,17 @@ pipeline {
 
     stages {
 
-        stage('Build Image') {
+        stage('Checkout Source') {
             steps {
-                sh 'docker build -t $IMAGE_NAME:latest .'
+                checkout scm
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh '''
+                docker build -t ${IMAGE_NAME}:latest .
+                '''
             }
         }
 
@@ -18,20 +25,22 @@ pipeline {
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: 'dockerhub',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
+                    usernameVariable: 'DOCKER_USERNAME',
+                    passwordVariable: 'DOCKER_PASSWORD'
                 )]) {
 
                     sh '''
-                    echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                    echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
                     '''
                 }
             }
         }
 
-        stage('Push Image') {
+        stage('Push Docker Image') {
             steps {
-                sh 'docker push $IMAGE_NAME:latest'
+                sh '''
+                docker push ${IMAGE_NAME}:latest
+                '''
             }
         }
 
@@ -45,48 +54,88 @@ pipeline {
     post {
 
         success {
-
             echo "Image Successfully Pushed to Docker Hub"
 
             emailext(
-                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                to: "pdiya971@gmail.com",
+                subject: "SUCCESS : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
                 body: """
-                <h2>Build Successful</h2>
+                <html>
+                <body>
+                <h2 style="color:green;">Build Successful</h2>
 
-                <p><b>Job:</b> ${env.JOB_NAME}</p>
+                <table border="1" cellpadding="8">
+                    <tr>
+                        <th>Job Name</th>
+                        <td>${env.JOB_NAME}</td>
+                    </tr>
+                    <tr>
+                        <th>Build Number</th>
+                        <td>${env.BUILD_NUMBER}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>SUCCESS</td>
+                    </tr>
+                    <tr>
+                        <th>Docker Image</th>
+                        <td>${IMAGE_NAME}:latest</td>
+                    </tr>
+                </table>
 
-                <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                <br>
 
-                <p><b>Docker Image:</b> ${IMAGE_NAME}:latest</p>
+                <a href="${env.BUILD_URL}">
+                Open Jenkins Build
+                </a>
 
-                <p>Image successfully pushed to Docker Hub.</p>
-
-                <p><a href="${env.BUILD_URL}">Open Build</a></p>
-                """,
-                to: "pdiya971@gmail.com"
+                </body>
+                </html>
+                """
             )
         }
 
         failure {
-
             echo "Pipeline Failed"
 
             emailext(
-                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                to: "pdiya971@gmail.com",
+                subject: "FAILED : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 mimeType: 'text/html',
                 body: """
-                <h2>Build Failed</h2>
+                <html>
+                <body>
+                <h2 style="color:red;">Build Failed</h2>
 
-                <p><b>Job:</b> ${env.JOB_NAME}</p>
+                <table border="1" cellpadding="8">
+                    <tr>
+                        <th>Job Name</th>
+                        <td>${env.JOB_NAME}</td>
+                    </tr>
+                    <tr>
+                        <th>Build Number</th>
+                        <td>${env.BUILD_NUMBER}</td>
+                    </tr>
+                    <tr>
+                        <th>Status</th>
+                        <td>FAILED</td>
+                    </tr>
+                </table>
 
-                <p><b>Build Number:</b> ${env.BUILD_NUMBER}</p>
+                <br>
 
-                <p>Please check the Jenkins console output.</p>
+                Please check the Jenkins Console Output.
 
-                <p><a href="${env.BUILD_URL}">Open Build</a></p>
-                """,
-                to: "pdiya971@gmail.com"
+                <br><br>
+
+                <a href="${env.BUILD_URL}">
+                Open Jenkins Build
+                </a>
+
+                </body>
+                </html>
+                """
             )
         }
 
