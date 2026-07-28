@@ -54,88 +54,55 @@ pipeline {
     post {
 
         success {
-            echo "Image Successfully Pushed to Docker Hub"
+            echo 'Docker image successfully pushed.'
 
-            emailext(
-                to: "pdiya971@gmail.com",
-                subject: "SUCCESS : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                mimeType: 'text/html',
+            mail(
+                to: 'pdiya971@gmail.com',
+                subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                <html>
-                <body>
-                <h2 style="color:green;">Build Successful</h2>
+Hello,
 
-                <table border="1" cellpadding="8">
-                    <tr>
-                        <th>Job Name</th>
-                        <td>${env.JOB_NAME}</td>
-                    </tr>
-                    <tr>
-                        <th>Build Number</th>
-                        <td>${env.BUILD_NUMBER}</td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td>SUCCESS</td>
-                    </tr>
-                    <tr>
-                        <th>Docker Image</th>
-                        <td>${IMAGE_NAME}:latest</td>
-                    </tr>
-                </table>
+Your Jenkins pipeline completed successfully.
 
-                <br>
+Job Name      : ${env.JOB_NAME}
+Build Number  : ${env.BUILD_NUMBER}
+Build Status  : SUCCESS
 
-                <a href="${env.BUILD_URL}">
-                Open Jenkins Build
-                </a>
+Docker Image:
+${IMAGE_NAME}:latest
 
-                </body>
-                </html>
-                """
+Build URL:
+${env.BUILD_URL}
+
+Regards,
+Jenkins
+"""
             )
         }
 
         failure {
-            echo "Pipeline Failed"
+            echo 'Pipeline failed.'
 
-            emailext(
-                to: "pdiya971@gmail.com",
-                subject: "FAILED : ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                mimeType: 'text/html',
+            mail(
+                to: 'pdiya971@gmail.com',
+                subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
                 body: """
-                <html>
-                <body>
-                <h2 style="color:red;">Build Failed</h2>
+Hello,
 
-                <table border="1" cellpadding="8">
-                    <tr>
-                        <th>Job Name</th>
-                        <td>${env.JOB_NAME}</td>
-                    </tr>
-                    <tr>
-                        <th>Build Number</th>
-                        <td>${env.BUILD_NUMBER}</td>
-                    </tr>
-                    <tr>
-                        <th>Status</th>
-                        <td>FAILED</td>
-                    </tr>
-                </table>
+Your Jenkins pipeline failed.
 
-                <br>
+Job Name      : ${env.JOB_NAME}
+Build Number  : ${env.BUILD_NUMBER}
+Build Status  : FAILED
 
-                Please check the Jenkins Console Output.
+Please check the Jenkins console output.
 
-                <br><br>
+Build URL:
+${env.BUILD_URL}
 
-                <a href="${env.BUILD_URL}">
-                Open Jenkins Build
-                </a>
-
-                </body>
-                </html>
-                """
+Regards,
+Jenkins
+"""
             )
         }
 
